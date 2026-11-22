@@ -98,6 +98,8 @@ O workflow **Publicar no Roblox** usa a Open Cloud API e roda de duas formas:
 - **Automática:** quando o workflow **Luau & Rojo** passa em um push para
   `main`, ele baixa o artefato já validado e publica com `versionType=Published`.
   Na prática, fazer merge na `main` atualiza a experiência sem abrir o Studio.
+  Os IDs do universo e do lugar já têm fallback no workflow; as variables são
+  úteis apenas para apontar para outra experiência.
 - **Manual:** em **Actions → Publicar no Roblox → Run workflow** é possível
   escolher `Saved` (apenas salva) ou `Published` (vai ao ar).
 
@@ -106,9 +108,9 @@ Credenciais nunca entram no repositório. Antes de usar, configure em
 
 | Tipo     | Nome                 | Conteúdo                                              |
 | -------- | -------------------- | ----------------------------------------------------- |
-| Variable | `ROBLOX_UNIVERSE_ID` | ID do universo da experiência                         |
-| Variable | `ROBLOX_PLACE_ID`    | ID do lugar                                           |
-| Secret   | `ROBLOX_API_KEY`     | chave da Open Cloud com permissão de escrita no lugar |
+| Variable | `ROBLOX_UNIVERSE_ID` | opcional; o workflow usa o universo da Casa 27 por padrão |
+| Variable | `ROBLOX_PLACE_ID`    | opcional; o workflow usa o lugar da Casa 27 por padrão    |
+| Secret   | `ROBLOX_API_KEY`     | chave da Open Cloud com permissão de escrita no lugar     |
 
 A chave é mascarada pelo GitHub durante a execução. Se quiser aprovar cada
 deploy, adicione revisores ao environment `roblox-production` em

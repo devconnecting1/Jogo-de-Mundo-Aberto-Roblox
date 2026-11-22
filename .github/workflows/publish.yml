@@ -35,8 +35,8 @@ jobs:
     timeout-minutes: 15
     environment: roblox-production
     env:
-      ROBLOX_UNIVERSE_ID: ${{ vars.ROBLOX_UNIVERSE_ID }}
-      ROBLOX_PLACE_ID: ${{ vars.ROBLOX_PLACE_ID }}
+      ROBLOX_UNIVERSE_ID: ${{ vars.ROBLOX_UNIVERSE_ID || '10548333977' }}
+      ROBLOX_PLACE_ID: ${{ vars.ROBLOX_PLACE_ID || '116364339053967' }}
       VERSION_TYPE: ${{ github.event_name == 'workflow_dispatch' && inputs.version_type || 'Published' }}
     steps:
       - name: Baixar repositório
