@@ -1,0 +1,11 @@
+.tools/
+build/
+node_modules/
+sourcemap.json
+.DS_Store
+*.log
+preview/.cache/
+test-results/
+playwright-report/
+blob-report/
+.eslintcache

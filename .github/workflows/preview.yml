@@ -1,0 +1,92 @@
+name: Preview & JavaScript
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: ESLint, Prettier, unitários e Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: ESLint (somente CI)
+        run: npx eslint preview scripts tests playwright.config.mjs eslint.config.mjs --max-warnings=0
+
+      - name: Prettier (somente CI)
+        run: npx prettier --check .
+
+      - name: Preparar patch de formatação
+        if: failure()
+        run: |
+          set -euo pipefail
+          npx prettier --write .
+          rm -rf /tmp/formatted
+          mkdir -p /tmp/formatted
+          changed_files=$(git diff --name-only)
+          if [ -z "$changed_files" ]; then
+            echo "Nenhuma alteração de formatação produzida."
+            exit 0
+          fi
+          while IFS= read -r file; do
+            mkdir -p "/tmp/formatted/$(dirname "$file")"
+            cp "$file" "/tmp/formatted/$file"
+          done <<< "$changed_files"
+          tar -czf formatting-patch.tar.gz -C /tmp/formatted .
+
+      - name: Publicar patch de formatação
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: formatting-patch
+          path: formatting-patch.tar.gz
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Testes unitários do preview
+        run: npm run test:unit
+
+      - name: Restaurar cache do Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Instalar Chromium e dependências do sistema
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes end-to-end do visualizador
+        run: npm run test:e2e
+
+      - name: Guardar relatório do Playwright em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,0 +1,102 @@
+{
+  "name": "Casa27",
+  "tree": {
+    "$className": "DataModel",
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "StreamingEnabled": false,
+        "Gravity": 196.2
+      },
+      "Casa27": {
+        "$path": "src/world/Casa27.rbxm"
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Technology": "Future",
+        "ClockTime": 16.55,
+        "GeographicLatitude": 18,
+        "Brightness": 2.35,
+        "ExposureCompensation": 0.18,
+        "EnvironmentDiffuseScale": 0.35,
+        "EnvironmentSpecularScale": 0.5,
+        "Ambient": [0.24, 0.21, 0.18],
+        "OutdoorAmbient": [0.47, 0.43, 0.37],
+        "ShadowSoftness": 0.35,
+        "GlobalShadows": true
+      },
+      "Atmosphere": {
+        "$className": "Atmosphere",
+        "$properties": {
+          "Density": 0.28,
+          "Offset": 0.08,
+          "Color": [0.78, 0.72, 0.63],
+          "Decay": [0.5, 0.43, 0.38],
+          "Glare": 0.08,
+          "Haze": 1.6
+        }
+      },
+      "Bloom": {
+        "$className": "BloomEffect",
+        "$properties": {
+          "Enabled": true,
+          "Intensity": 0.38,
+          "Size": 24,
+          "Threshold": 1.08
+        }
+      },
+      "Cor": {
+        "$className": "ColorCorrectionEffect",
+        "$properties": {
+          "Enabled": true,
+          "Brightness": 0.015,
+          "Contrast": 0.08,
+          "Saturation": 0.03,
+          "TintColor": [1, 0.955, 0.9]
+        }
+      },
+      "SunRays": {
+        "$className": "SunRaysEffect",
+        "$properties": {
+          "Enabled": true,
+          "Intensity": 0.06,
+          "Spread": 0.55
+        }
+      },
+      "DepthOfField": {
+        "$className": "DepthOfFieldEffect",
+        "$properties": {
+          "Enabled": false,
+          "FarIntensity": 0.05,
+          "FocusDistance": 28,
+          "InFocusRadius": 24,
+          "NearIntensity": 0.06
+        }
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$properties": {
+        "CharacterWalkSpeed": 13,
+        "CharacterJumpPower": 40,
+        "CameraMaxZoomDistance": 14,
+        "CameraMinZoomDistance": 0.5,
+        "EnableMouseLockOption": false
+      }
+    },
+    "Players": {
+      "$className": "Players",
+      "$properties": {
+        "CharacterAutoLoads": true
+      }
+    },
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": {
+        "AmbientReverb": "LivingRoom"
+      }
+    }
+  }
+}

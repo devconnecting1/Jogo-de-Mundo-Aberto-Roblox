@@ -1,0 +1,100 @@
+name: Publicar no Roblox
+
+on:
+  workflow_run:
+    workflows: ["Luau & Rojo"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Saved apenas salva; Published vai ao ar"
+        required: true
+        type: choice
+        default: Saved
+        options:
+          - Saved
+          - Published
+
+concurrency:
+  group: roblox-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  publish:
+    name: Publicar a versão validada
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: roblox-production
+    env:
+      ROBLOX_UNIVERSE_ID: ${{ vars.ROBLOX_UNIVERSE_ID }}
+      ROBLOX_PLACE_ID: ${{ vars.ROBLOX_PLACE_ID }}
+      VERSION_TYPE: ${{ github.event_name == 'workflow_dispatch' && inputs.version_type || 'Published' }}
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Instalar Rojo e Lune (com cache)
+        uses: ./.github/actions/setup-tools
+
+      - name: Baixar lugar validado pelo CI
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: Casa27-place
+          path: build
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compilar lugar manualmente
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          lune run tools/build_world.luau
+          mkdir -p build
+          rojo build default.project.json -o build/Casa27.rbxlx
+
+      - name: Validar lugar antes do envio
+        run: lune run tools/validate_place.luau build/Casa27.rbxlx
+
+      - name: Enviar versão para o Roblox
+        env:
+          ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ROBLOX_API_KEY:-}" ]; then
+            echo "::error::Configure o secret ROBLOX_API_KEY neste repositório."
+            exit 1
+          fi
+          if [ -z "${ROBLOX_UNIVERSE_ID:-}" ] || [ -z "${ROBLOX_PLACE_ID:-}" ]; then
+            echo "::error::Configure os variables ROBLOX_UNIVERSE_ID e ROBLOX_PLACE_ID."
+            exit 1
+          fi
+
+          endpoint="https://apis.roblox.com/universes/v1/${ROBLOX_UNIVERSE_ID}/places/${ROBLOX_PLACE_ID}/versions?versionType=${VERSION_TYPE}"
+          status=$(curl --silent --show-error --fail-with-body \
+            --retry 2 \
+            --output /tmp/roblox-response.json \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header "x-api-key: ${ROBLOX_API_KEY}" \
+            --header "Content-Type: application/octet-stream" \
+            --data-binary @build/Casa27.rbxlx \
+            "$endpoint")
+
+          cat /tmp/roblox-response.json
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Roblox respondeu HTTP $status."
+            exit 1
+          fi
+          echo "Versão enviada com sucesso (HTTP $status, tipo $VERSION_TYPE)."
