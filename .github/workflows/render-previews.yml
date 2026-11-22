@@ -1,0 +1,68 @@
+name: Render de revisão
+
+# Manual e econômico: usa somente runner padrão (gratuito em repositório
+# público), cache do Chromium e artifact. Não faz commit automático.
+on:
+  workflow_dispatch:
+    inputs:
+      shots:
+        description: "IDs separados por espaço (vazio renderiza os 9 pontos de vista)"
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: render-previews-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    name: Renderizar imagens de revisão
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Restaurar cache do Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Instalar Chromium e dependências do sistema
+        run: npx playwright install --with-deps chromium
+
+      - name: Renderizar
+        env:
+          SHOTS: ${{ inputs.shots }}
+        run: |
+          set -euo pipefail
+          if [ -n "$SHOTS" ]; then
+            npm run render:previews -- $SHOTS
+          else
+            npm run render:previews
+          fi
+
+      - name: Validar as imagens
+        run: npm run test:unit
+
+      - name: Publicar imagens como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-images
+          path: assets/preview/*.png
+          if-no-files-found: error
+          retention-days: 14

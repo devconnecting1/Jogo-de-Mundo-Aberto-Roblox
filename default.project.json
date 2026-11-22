@@ -1,5 +1,5 @@
 {
-  "name": "Casa27",
+  "name": "PrisaoCentral",
   "tree": {
     "$className": "DataModel",
     "Workspace": {
@@ -8,61 +8,61 @@
         "StreamingEnabled": false,
         "Gravity": 196.2
       },
-      "Casa27": {
-        "$path": "src/world/Casa27.rbxm"
+      "PrisaoCentral": {
+        "$path": "src/world/PrisaoCentral.rbxm"
       }
     },
     "Lighting": {
       "$className": "Lighting",
       "$properties": {
         "Technology": "Future",
-        "ClockTime": 16.55,
-        "GeographicLatitude": 18,
-        "Brightness": 2.35,
-        "ExposureCompensation": 0.18,
-        "EnvironmentDiffuseScale": 0.35,
-        "EnvironmentSpecularScale": 0.5,
-        "Ambient": [0.24, 0.21, 0.18],
-        "OutdoorAmbient": [0.47, 0.43, 0.37],
-        "ShadowSoftness": 0.35,
+        "ClockTime": 15.4,
+        "GeographicLatitude": 20,
+        "Brightness": 2.2,
+        "ExposureCompensation": 0.12,
+        "EnvironmentDiffuseScale": 0.45,
+        "EnvironmentSpecularScale": 0.55,
+        "Ambient": [0.24, 0.22, 0.19],
+        "OutdoorAmbient": [0.46, 0.42, 0.36],
+        "ShadowSoftness": 0.32,
         "GlobalShadows": true
       },
       "Atmosphere": {
         "$className": "Atmosphere",
         "$properties": {
-          "Density": 0.28,
-          "Offset": 0.08,
-          "Color": [0.78, 0.72, 0.63],
-          "Decay": [0.5, 0.43, 0.38],
-          "Glare": 0.08,
-          "Haze": 1.6
+          "Density": 0.3,
+          "Offset": 0.06,
+          "Color": [0.76, 0.71, 0.63],
+          "Decay": [0.5, 0.44, 0.38],
+          "Glare": 0.06,
+          "Haze": 1.8
         }
       },
       "Bloom": {
         "$className": "BloomEffect",
         "$properties": {
           "Enabled": true,
-          "Intensity": 0.38,
-          "Size": 24,
-          "Threshold": 1.08
+          "Intensity": 0.34,
+          "Size": 22,
+          "Threshold": 1.1
         }
       },
-      "Cor": {
+      "ColorCorrection": {
         "$className": "ColorCorrectionEffect",
         "$properties": {
           "Enabled": true,
-          "Brightness": 0.015,
-          "Contrast": 0.08,
-          "Saturation": 0.03,
-          "TintColor": [1, 0.955, 0.9]
+          "Brightness": 0.01,
+          "Contrast": 0.1,
+          "Saturation": 0.0,
+          "TintColor": [1, 0.96, 0.91]
         }
       },
       "SunRays": {
         "$className": "SunRaysEffect",
         "$properties": {
           "Enabled": true,
-          "Intensity": 0.06,
-          "Spread": 0.55
+          "Intensity": 0.05,
+          "Spread": 0.5
         }
       },
       "DepthOfField": {
@@ -70,18 +70,18 @@
         "$properties": {
           "Enabled": false,
           "FarIntensity": 0.05,
-          "FocusDistance": 28,
-          "InFocusRadius": 24,
-          "NearIntensity": 0.06
+          "FocusDistance": 40,
+          "InFocusRadius": 32,
+          "NearIntensity": 0.05
         }
       }
     },
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "$properties": {
-        "CharacterWalkSpeed": 13,
-        "CharacterJumpPower": 40,
-        "CameraMaxZoomDistance": 14,
+        "CharacterWalkSpeed": 14,
+        "CharacterJumpPower": 42,
+        "CameraMaxZoomDistance": 40,
         "CameraMinZoomDistance": 0.5,
         "EnableMouseLockOption": false
       }
@@ -95,7 +95,7 @@
     "SoundService": {
       "$className": "SoundService",
       "$properties": {
-        "AmbientReverb": "LivingRoom"
+        "AmbientReverb": "Hallway"
       }
     }
   }

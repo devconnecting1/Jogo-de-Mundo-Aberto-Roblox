@@ -5,10 +5,22 @@ import process from "node:process";
 
 import { chromium } from "@playwright/test";
 
-const port = 4174;
+const port = Number(process.env.PREVIEW_PORT ?? 4174);
 const baseUrl = `http://127.0.0.1:${port}`;
 const outputDirectory = path.resolve("assets/preview");
-const shots = ["sala", "cozinha", "quarto", "banheiro", "jantar", "entrada", "geral"];
+const defaultShots = [
+  "geral",
+  "fachada",
+  "atrio",
+  "galeria",
+  "cela",
+  "refeitorio",
+  "cozinha",
+  "enfermaria",
+  "patio",
+];
+const requestedShots = process.argv.slice(2);
+const shots = requestedShots.length > 0 ? requestedShots : defaultShots;
 
 await mkdir(outputDirectory, { recursive: true });
 
@@ -56,9 +68,9 @@ try {
     const target = path.join(outputDirectory, `${shot}.png`);
     await page.goto(`${baseUrl}/?shot=${shot}&clean=1&still=1`, { waitUntil: "networkidle" });
     await page.waitForFunction(
-      () => window.__CASA_READY__ === true && window.__CASA_STILL_READY__ === true,
+      () => window.__PRISAO_READY__ === true && window.__PRISAO_STILL_READY__ === true,
       null,
-      { timeout: 60_000 },
+      { timeout: 240_000 },
     );
     await page.waitForTimeout(500);
     await page.screenshot({ path: target, type: "png", timeout: 120_000 });

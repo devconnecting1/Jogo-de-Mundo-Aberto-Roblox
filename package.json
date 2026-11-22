@@ -1,9 +1,9 @@
 {
-  "name": "casa27",
+  "name": "presidio-central",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Casa 27 — interior 3D em escala real para Roblox, com preview web e validação automatizada.",
+  "description": "Presídio Central — showcase de arquitetura prisional clássica para Roblox, com preview web e validação automatizada.",
   "scripts": {
     "preview": "node scripts/serve.mjs",
     "test:unit": "node --test tests/unit/*.test.mjs",

@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Validar casa e gerar place
+    name: Validar presídio e gerar place
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -29,26 +29,26 @@ jobs:
           set -euo pipefail
           lune run tools/build_world.luau
           lune run tools/export_scene.luau
-          test -s src/world/Casa27.rbxm
+          test -s src/world/PrisaoCentral.rbxm
           test -s preview/scene.json
 
-      - name: Rodar testes da casa
-        run: lune run tests/house.test.luau
+      - name: Rodar testes do presídio
+        run: lune run tests/prison.test.luau
 
       - name: Compilar o lugar final com Rojo
         run: |
           set -euo pipefail
           mkdir -p build
-          rojo build default.project.json -o build/Casa27.rbxlx
-          test -s build/Casa27.rbxlx
+          rojo build default.project.json -o build/PrisaoCentral.rbxlx
+          test -s build/PrisaoCentral.rbxlx
 
       - name: Validar o lugar final
-        run: lune run tools/validate_place.luau build/Casa27.rbxlx
+        run: lune run tools/validate_place.luau build/PrisaoCentral.rbxlx
 
       - name: Publicar artefato do lugar
         uses: actions/upload-artifact@v4
         with:
-          name: Casa27-place
-          path: build/Casa27.rbxlx
+          name: PrisaoCentral-place
+          path: build/PrisaoCentral.rbxlx
           if-no-files-found: error
           retention-days: 14

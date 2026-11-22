@@ -51,7 +51,7 @@ jobs:
         if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@v4
         with:
-          name: Casa27-place
+          name: PrisaoCentral-place
           path: build
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -62,10 +62,10 @@ jobs:
           set -euo pipefail
           lune run tools/build_world.luau
           mkdir -p build
-          rojo build default.project.json -o build/Casa27.rbxlx
+          rojo build default.project.json -o build/PrisaoCentral.rbxlx
 
       - name: Validar lugar antes do envio
-        run: lune run tools/validate_place.luau build/Casa27.rbxlx
+        run: lune run tools/validate_place.luau build/PrisaoCentral.rbxlx
 
       - name: Enviar versão para o Roblox
         env:
@@ -89,7 +89,7 @@ jobs:
             --request POST \
             --header "x-api-key: ${ROBLOX_API_KEY}" \
             --header "Content-Type: application/octet-stream" \
-            --data-binary @build/Casa27.rbxlx \
+            --data-binary @build/PrisaoCentral.rbxlx \
             "$endpoint")
 
           cat /tmp/roblox-response.json

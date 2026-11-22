@@ -88,7 +88,7 @@ export function formatNumber(value) {
  * Luzes espacialmente próximas são fundidas, e o conjunto principal
  * prioriza intensidade × alcance.
  */
-export function clusterPreviewLights(lights, { radius = 4.2, limit = 12 } = {}) {
+export function clusterPreviewLights(lights, { radius = 7, limit = 10 } = {}) {
   const clusters = [];
 
   for (const light of lights) {
