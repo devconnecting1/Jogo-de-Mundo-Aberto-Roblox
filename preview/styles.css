@@ -57,7 +57,13 @@ button {
   pointer-events: none;
   background:
     radial-gradient(circle at 50% 45%, transparent 48%, rgba(13, 11, 9, 0.3) 100%),
-    linear-gradient(180deg, rgba(15, 13, 10, 0.23), transparent 15%, transparent 78%, rgba(15, 13, 10, 0.32));
+    linear-gradient(
+      180deg,
+      rgba(15, 13, 10, 0.23),
+      transparent 15%,
+      transparent 78%,
+      rgba(15, 13, 10, 0.32)
+    );
 }
 
 .ui {
@@ -347,8 +353,7 @@ body.clean .vignette {
   place-items: center;
   background:
     radial-gradient(circle at 70% 25%, rgba(150, 91, 66, 0.17), transparent 38%),
-    radial-gradient(circle at 20% 80%, rgba(86, 105, 83, 0.15), transparent 36%),
-    var(--ink);
+    radial-gradient(circle at 20% 80%, rgba(86, 105, 83, 0.15), transparent 36%), var(--ink);
   transition:
     opacity 700ms ease,
     visibility 700ms ease;

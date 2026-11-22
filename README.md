@@ -18,14 +18,14 @@ o recorte pedido para esta entrega.
 
 ## Por dentro da casa
 
-| | |
-| --- | --- |
-| ![Sala](assets/preview/sala.png) | ![Cozinha](assets/preview/cozinha.png) |
-| **Sala** — sofá de linho, parede ripada, TV, toca-discos, tapete e claraboia | **Cozinha** — armários shaker, bancada de pedra, forno, coifa, geladeira retrô e geladeira cheia de ímãs |
-| ![Quarto](assets/preview/quarto.png) | ![Banheiro](assets/preview/banheiro.png) |
-| **Quarto** — cama de casal, cabeceira estofada, guarda-roupa e janelas com linho | **Banheiro** — zellige verde-água, box de vidro, cuba de cerâmica e ferragens de latão |
-| ![Jantar](assets/preview/jantar.png) | ![Entrada](assets/preview/entrada.png) |
-| **Jantar** — mesa de nogueira para duas pessoas, cadeiras de palhinha e estante | **Entrada** — porta de madeira com ferragens, capacho, espelho, ganchos e banco de sapatos |
+|                                                                                  |                                                                                                          |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| ![Sala](assets/preview/sala.png)                                                 | ![Cozinha](assets/preview/cozinha.png)                                                                   |
+| **Sala** — sofá de linho, parede ripada, TV, toca-discos, tapete e claraboia     | **Cozinha** — armários shaker, bancada de pedra, forno, coifa, geladeira retrô e geladeira cheia de ímãs |
+| ![Quarto](assets/preview/quarto.png)                                             | ![Banheiro](assets/preview/banheiro.png)                                                                 |
+| **Quarto** — cama de casal, cabeceira estofada, guarda-roupa e janelas com linho | **Banheiro** — zellige verde-água, box de vidro, cuba de cerâmica e ferragens de latão                   |
+| ![Jantar](assets/preview/jantar.png)                                             | ![Entrada](assets/preview/entrada.png)                                                                   |
+| **Jantar** — mesa de nogueira para duas pessoas, cadeiras de palhinha e estante  | **Entrada** — porta de madeira com ferragens, capacho, espelho, ganchos e banco de sapatos               |
 
 ### O que foi desenhado
 
@@ -98,11 +98,11 @@ manualmente. Credenciais nunca entram no repositório.
 
 Antes de usar, configure em **Settings → Secrets and variables → Actions**:
 
-| Tipo | Nome | Conteúdo |
-| --- | --- | --- |
-| Variable | `ROBLOX_UNIVERSE_ID` | ID do universo da experiência |
-| Variable | `ROBLOX_PLACE_ID` | ID do lugar |
-| Secret | `ROBLOX_API_KEY` | chave da Open Cloud com permissão de escrita no lugar |
+| Tipo     | Nome                 | Conteúdo                                              |
+| -------- | -------------------- | ----------------------------------------------------- |
+| Variable | `ROBLOX_UNIVERSE_ID` | ID do universo da experiência                         |
+| Variable | `ROBLOX_PLACE_ID`    | ID do lugar                                           |
+| Secret   | `ROBLOX_API_KEY`     | chave da Open Cloud com permissão de escrita no lugar |
 
 Depois, abra **Actions → Publicar no Roblox → Run workflow**. O padrão é
 `Saved`; escolha `Published` quando quiser levar a versão ao ar. A chave é

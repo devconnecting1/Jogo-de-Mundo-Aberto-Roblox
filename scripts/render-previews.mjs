@@ -18,7 +18,10 @@ const server = spawn("node", ["scripts/serve.mjs"], {
 });
 
 const waitForServer = new Promise((resolve, reject) => {
-  const timeout = setTimeout(() => reject(new Error("Servidor demorou demais para subir.")), 15_000);
+  const timeout = setTimeout(
+    () => reject(new Error("Servidor demorou demais para subir.")),
+    15_000,
+  );
   server.stdout.on("data", (chunk) => {
     if (chunk.toString().includes("preview em")) {
       clearTimeout(timeout);

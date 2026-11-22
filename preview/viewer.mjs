@@ -257,7 +257,11 @@ function addSky() {
 function addLights(lights) {
   setProgress(72, "Acendendo as lâmpadas…");
 
-  const hemisphere = new THREE.HemisphereLight(new THREE.Color("#cfd9d6"), new THREE.Color("#625142"), 1.15);
+  const hemisphere = new THREE.HemisphereLight(
+    new THREE.Color("#cfd9d6"),
+    new THREE.Color("#625142"),
+    1.15,
+  );
   hemisphere.name = "hemisphere";
   scene.add(hemisphere);
 
@@ -291,12 +295,7 @@ function addLights(lights) {
       lightData.color[2],
       THREE.SRGBColorSpace,
     );
-    const point = new THREE.PointLight(
-      color,
-      lightData.brightness * 23,
-      lightData.range * 2.7,
-      2,
-    );
+    const point = new THREE.PointLight(color, lightData.brightness * 23, lightData.range * 2.7, 2);
     point.name = "casa27-luz";
     point.position.set(...lightData.position);
     point.castShadow = false;
