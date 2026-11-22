@@ -1,6 +1,6 @@
 --[[
     Tipos e construtores Roblox usados pelo compilador de mundo.
-    Este módulo é exclusivo do Lune: a casa final é um .rbxm estático e não
+    Este módulo é exclusivo do Lune: o presídio final é um .rbxm estático e não
     carrega este arquivo em runtime.
 ]]
 

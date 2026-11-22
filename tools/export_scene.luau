@@ -10,20 +10,41 @@ local roblox = require("@lune/roblox")
 
 local Enum = roblox.Enum
 
-local House = require("../src/builder/House")
+local Prison = require("../src/builder/Prison")
 
-local house = House.build(nil)
+local prison = Prison.build(nil)
 
 local parts = {}
 local lights = {}
 
 local roomNames = {
+    HallCentral = "Hall Central",
+    Celas = "Celas",
+    Refeitorio = "Refeitório",
     Cozinha = "Cozinha",
-    Sala = "Sala",
-    Quarto = "Quarto",
-    Banheiro = "Banheiro",
-    Jantar = "Jantar",
+    Lavanderia = "Lavanderia",
+    Enfermaria = "Enfermaria",
+    Visitas = "Visitas",
+    Triagem = "Triagem",
     Entrada = "Entrada",
+    Administracao = "Diretoria",
+    Escritorio = "Escritório",
+    Controle = "Controle",
+    Alojamento = "Alojamento",
+    Registro = "Registro",
+    Arquivo = "Arquivo",
+    SalaDeGuarda = "Sala de Guarda",
+    ChefeDeGuarda = "Chefe de Guarda",
+    Plantao = "Plantão",
+    Biblioteca = "Biblioteca",
+    SalaDeAula = "Sala de Aula",
+    Capela = "Capela",
+    ArquivoMorto = "Arquivo Morto",
+    Oficina = "Oficina",
+    CasaDeMaquinas = "Casa de Máquinas",
+    Patio = "Pátio",
+    TorreDeVigia = "Torre de Vigia",
+    Terreno = "Terreno",
 }
 
 local function round(value: number, digits: number?): number
@@ -171,79 +192,95 @@ local function walk(instance: Instance)
     end
 end
 
-walk(house)
+walk(prison)
 
 local shots = {
     {
-        id = "sala",
-        label = "Sala de estar",
+        id = "geral",
+        label = "Maquete do complexo",
+        mode = "dollhouse",
+        pos = { -138, 108, 128 },
+        target = { -6, 6, 0 },
+        fov = 45,
+    },
+    {
+        id = "fachada",
+        label = "Fachada principal",
         mode = "interior",
-        pos = { -2.65, 5.5, 2.35 },
-        target = { -11.0, 2.75, 0.7 },
-        fov = 58,
+        pos = { 0, 30, 102 },
+        target = { 0, 17, 38 },
+        fov = 48,
+    },
+    {
+        id = "atrio",
+        label = "Átrio das galerias",
+        mode = "interior",
+        pos = { 18, 8.5, 20 },
+        target = { -14, 16, -12 },
+        fov = 72,
+    },
+    {
+        id = "galeria",
+        label = "Galeria das celas",
+        mode = "interior",
+        pos = { 10, 16.5, 14 },
+        target = { -26, 15.0, -8 },
+        fov = 70,
+    },
+    {
+        id = "cela",
+        label = "Cela 109",
+        mode = "interior",
+        pos = { 26.6, 18.4, -15.43 },
+        target = { 37.3, 16.2, -15.43 },
+        fov = 80,
+    },
+    {
+        id = "refeitorio",
+        label = "Refeitório",
+        mode = "interior",
+        pos = { -91.5, 5.8, 26.5 },
+        target = { -58, 7.8, -12 },
+        fov = 64,
     },
     {
         id = "cozinha",
-        label = "Cozinha",
+        label = "Cozinha industrial",
         mode = "interior",
-        pos = { 0.65, 5.35, -3.4 },
-        target = { -3.1, 2.9, -9.25 },
-        fov = 60,
+        pos = { -27.2, 5.8, 4.0 },
+        target = { -36.0, 4.8, -22.0 },
+        fov = 64,
     },
     {
-        id = "quarto",
-        label = "Quarto",
+        id = "enfermaria",
+        label = "Enfermaria",
         mode = "interior",
-        pos = { 4.8, 5.45, -2.25 },
-        target = { 11.2, 2.5, -7.1 },
-        fov = 60,
+        pos = { 27.2, 5.8, 25.0 },
+        target = { 36.0, 4.8, 15.0 },
+        fov = 64,
     },
     {
-        id = "banheiro",
-        label = "Banheiro",
+        id = "patio",
+        label = "Pátio de exercícios",
         mode = "interior",
-        pos = { -5.1, 4.95, 8.9 },
-        target = { -11.3, 3.5, 6.6 },
-        fov = 58,
-    },
-    {
-        id = "jantar",
-        label = "Jantar",
-        mode = "interior",
-        pos = { 4.4, 5.35, 2.9 },
-        target = { 9.9, 3.0, 6.5 },
-        fov = 58,
-    },
-    {
-        id = "entrada",
-        label = "Entrada",
-        mode = "interior",
-        pos = { 1.55, 5.25, 5.7 },
-        target = { -3.7, 3.55, 9.75 },
-        fov = 58,
-    },
-    {
-        id = "geral",
-        label = "Maquete",
-        mode = "dollhouse",
-        pos = { 19.5, 23.5, 24.5 },
-        target = { -0.4, 1.4, 0.2 },
-        fov = 38,
+        pos = { 62, 13.5, 29 },
+        target = { 96, 9.0, -14 },
+        fov = 62,
     },
 }
 
 local data = {
     meta = {
-        title = "Casa 27",
-        subtitle = "Um mundo aberto do tamanho de uma casa.",
-        description = "Interior de 44 m² em escala real, 100% construído em Luau e gerado de forma determinística.",
+        title = "Presídio Central",
+        subtitle = "Um showcase de arquitetura prisional clássica.",
+        description = "Complexo prisional de três pavimentos, 100% construído com Parts retangulares e gerado de forma determinística.",
         dimensions = {
-            width = 29,
-            depth = 21,
-            height = 9.2,
+            width = 228,
+            depth = 114,
+            height = 56.5,
             unit = "studs",
             studsPerMeter = 3.571,
-            areaSquareMeters = 44,
+            areaSquareMeters = 2038,
         },
         counts = {
             parts = #parts,
@@ -258,4 +295,11 @@ local data = {
 
 local output = serde.encode("json", data, true)
 fs.writeFile("preview/scene.json", output)
-print(string.format("[casa27] preview/scene.json: %d peças, %d luzes, %.1f KB", #parts, #lights, #output / 1024))
+print(
+    string.format(
+        "[presidio] preview/scene.json: %d peças, %d luzes, %.1f KB",
+        #parts,
+        #lights,
+        #output / 1024
+    )
+)

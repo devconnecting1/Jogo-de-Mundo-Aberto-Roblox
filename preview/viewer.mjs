@@ -72,7 +72,7 @@ function setProgress(percent, detail) {
 
 function showError(error) {
   console.error(error);
-  window.__CASA_ERROR__ = String(error);
+  window.__PRISAO_ERROR__ = String(error);
   loading.classList.add("is-hidden");
   errorPanel.hidden = false;
   errorMessage.textContent =
@@ -191,7 +191,7 @@ function addTransparentPart(part) {
 }
 
 function addGeometry(parts) {
-  setProgress(58, "Assentando móveis e objetos…");
+  setProgress(58, "Assentando celas, refeitório e oficinas…");
   const buckets = new Map();
 
   for (const part of parts) {
@@ -210,7 +210,7 @@ function addGeometry(parts) {
 }
 
 function addSky() {
-  const skyGeometry = new THREE.SphereGeometry(180, 32, 16);
+  const skyGeometry = new THREE.SphereGeometry(700, 40, 20);
   const skyMaterial = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     depthWrite: false,
@@ -255,36 +255,36 @@ function addSky() {
 }
 
 function addLights(lights) {
-  setProgress(72, "Acendendo as lâmpadas…");
+  setProgress(72, "Acendendo as lâmpadas do complexo…");
 
   const hemisphere = new THREE.HemisphereLight(
     new THREE.Color("#cfd9d6"),
     new THREE.Color("#625142"),
-    1.15,
+    1.4,
   );
   hemisphere.name = "hemisphere";
   scene.add(hemisphere);
 
-  const sun = new THREE.DirectionalLight(new THREE.Color("#ffd6a1"), 3.1);
+  const sun = new THREE.DirectionalLight(new THREE.Color("#ffd6a1"), 3.4);
   sun.name = "sun";
-  sun.position.set(-30, 42, 20);
+  sun.position.set(-110, 155, 105);
   sun.target.position.set(0, 0, 0);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.left = -28;
-  sun.shadow.camera.right = 28;
-  sun.shadow.camera.top = 28;
-  sun.shadow.camera.bottom = -28;
+  sun.shadow.camera.left = -175;
+  sun.shadow.camera.right = 175;
+  sun.shadow.camera.top = 175;
+  sun.shadow.camera.bottom = -175;
   sun.shadow.camera.near = 2;
-  sun.shadow.camera.far = 110;
+  sun.shadow.camera.far = 520;
   sun.shadow.bias = -0.00035;
   sun.shadow.normalBias = 0.035;
   scene.add(sun);
   scene.add(sun.target);
 
-  const fill = new THREE.DirectionalLight(new THREE.Color("#b9cfda"), 0.4);
+  const fill = new THREE.DirectionalLight(new THREE.Color("#b9cfda"), 0.55);
   fill.name = "fill";
-  fill.position.set(18, 20, -24);
+  fill.position.set(70, 60, -90);
   scene.add(fill);
 
   const clustered = clusterPreviewLights(lights);
@@ -296,7 +296,7 @@ function addLights(lights) {
       THREE.SRGBColorSpace,
     );
     const point = new THREE.PointLight(color, lightData.brightness * 23, lightData.range * 2.7, 2);
-    point.name = "casa27-luz";
+    point.name = "prisao-luz";
     point.position.set(...lightData.position);
     point.castShadow = false;
     scene.add(point);
@@ -308,7 +308,7 @@ function addEnvironment(rendererInstance) {
   const roomEnvironment = new RoomEnvironment();
   environmentTexture = pmrem.fromScene(roomEnvironment, 0.045).texture;
   scene.environment = environmentTexture;
-  scene.environmentIntensity = 0.3;
+  scene.environmentIntensity = 0.42;
   roomEnvironment.dispose();
   pmrem.dispose();
 }
@@ -330,10 +330,10 @@ function initRenderer() {
   renderer.setClearColor(new THREE.Color("#b8c5c4"), 1);
 
   scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(new THREE.Color("#bec7bd"), 74, 168);
+  scene.fog = new THREE.Fog(new THREE.Color("#bec7bd"), 210, 720);
 
-  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.06, 220);
-  camera.position.set(-2.65, 5.5, 2.35);
+  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.06, 900);
+  camera.position.set(-135, 105, 125);
 
   controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
@@ -342,9 +342,9 @@ function initRenderer() {
   controls.zoomSpeed = 0.72;
   controls.panSpeed = 0.5;
   controls.minDistance = 0.8;
-  controls.maxDistance = 58;
+  controls.maxDistance = 310;
   controls.maxPolarAngle = Math.PI * 0.86;
-  controls.target.set(-11, 2.75, 0.7);
+  controls.target.set(0, 8, 0);
   controls.update();
 }
 
@@ -452,11 +452,11 @@ function setupUi(shots) {
 function showLoadedState() {
   statusLabel.textContent = "Preview interativo";
   loading.classList.add("is-hidden");
-  window.__CASA_READY__ = true;
+  window.__PRISAO_READY__ = true;
 }
 
 function buildScene(data) {
-  setProgress(34, "Erguendo paredes e abrindo a claraboia…");
+  setProgress(34, "Erguendo alas, celas e galerias…");
   sceneData = data;
 
   partCountLabel.textContent = formatNumber(data.meta.counts.parts);
@@ -499,7 +499,7 @@ function animate(now) {
 
   if (isStill && renderedFrames >= 3) {
     renderer.setAnimationLoop(null);
-    window.__CASA_STILL_READY__ = true;
+    window.__PRISAO_STILL_READY__ = true;
   }
 }
 
@@ -509,7 +509,7 @@ async function boot() {
       document.body.classList.add("clean");
     }
 
-    setProgress(8, "Lendo a planta da casa…");
+    setProgress(8, "Lendo a planta do presídio…");
     const response = await fetch("./scene.json", { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`scene.json respondeu ${response.status}`);
@@ -524,7 +524,7 @@ async function boot() {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         showLoadedState();
-        window.__CASA_VIEWER__ = {
+        window.__PRISAO_VIEWER__ = {
           ready: true,
           data: {
             title: data.meta.title,

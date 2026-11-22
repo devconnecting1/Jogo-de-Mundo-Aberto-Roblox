@@ -6,9 +6,10 @@ local Vector3 = Compat.Vector3
 local Enum = Compat.Enum
 
 --[[
-    Kit de construção usado pelo gerador da Casa 27.
-    Mantém toda a geometria ancorada, sem scripts e com propriedades seguras
-    para um lugar focado em exploração e composição visual.
+    Kit de construção do Presídio Central.
+    Toda a geometria é feita exclusivamente com Part / Block. Não há bolas,
+    cilindros, wedges nem malhas: a linguagem do prédio é retangular, como a
+    alvenaria, a cantaria e as grades de uma penitenciária clássica.
 ]]
 
 local Kit = {}
@@ -20,7 +21,6 @@ export type Options = {
     shadow: boolean?,
     transparency: number?,
     reflectance: number?,
-    shape: Enum.PartType?,
     material: Enum.Material?,
 }
 
@@ -35,8 +35,8 @@ local function applyOptions(part: BasePart, options: Options?)
     part.Reflectance = o.reflectance or 0
     part.TopSurface = Enum.SurfaceType.Smooth
     part.BottomSurface = Enum.SurfaceType.Smooth
-    if o.shape then
-        part.Shape = o.shape
+    if part:IsA("Part") then
+        part.Shape = Enum.PartType.Block
     end
 end
 
@@ -63,6 +63,7 @@ function Kit.part(
     material: Enum.Material?,
     options: Options?
 ): Part
+    assert(size.X > 0 and size.Y > 0 and size.Z > 0, "Peça com tamanho inválido: " .. name)
     local part = Instance.new("Part")
     part.Name = name
     part.Size = size
@@ -74,7 +75,7 @@ function Kit.part(
     return part
 end
 
-function Kit.box(
+function Kit.block(
     parent: Instance,
     name: string,
     cframe: CFrame,
@@ -86,100 +87,32 @@ function Kit.box(
     return Kit.part(parent, name, size, cframe, color, material, options)
 end
 
-function Kit.sphere(
+--[[
+    Caixa alinhada aos eixos a partir de dois cantos. É o tijolo básico da
+    construção: paredes, lajes, móveis e guarnições saem todos daqui.
+]]
+function Kit.span(
     parent: Instance,
     name: string,
-    cframe: CFrame,
-    size: Vector3,
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number,
+    minZ: number,
+    maxZ: number,
     color: Color3,
     material: Enum.Material?,
     options: Options?
 ): Part
-    local merged = table.clone(options or {})
-    merged.shape = Enum.PartType.Ball
-    return Kit.part(parent, name, size, cframe, color, material, merged)
-end
-
-function Kit.cylinder(
-    parent: Instance,
-    name: string,
-    cframe: CFrame,
-    length: number,
-    diameter: number,
-    color: Color3,
-    material: Enum.Material?,
-    axis: string?,
-    options: Options?
-): Part
-    local merged = table.clone(options or {})
-    merged.shape = Enum.PartType.Cylinder
-    local rotation = CFrame.new()
-    if axis == "y" then
-        rotation = CFrame.Angles(0, 0, math.rad(90))
-    elseif axis == "z" then
-        rotation = CFrame.Angles(0, math.rad(90), 0)
-    end
     return Kit.part(
         parent,
         name,
-        Vector3.new(length, diameter, diameter),
-        cframe * rotation,
+        Vector3.new(maxX - minX, maxY - minY, maxZ - minZ),
+        CFrame.new((minX + maxX) * 0.5, (minY + maxY) * 0.5, (minZ + maxZ) * 0.5),
         color,
         material,
-        merged
+        options
     )
-end
-
-function Kit.rodBetween(
-    parent: Instance,
-    name: string,
-    from: Vector3,
-    to: Vector3,
-    diameter: number,
-    color: Color3,
-    material: Enum.Material?,
-    options: Options?
-): Part
-    local delta = to - from
-    local length = delta.Magnitude
-    local center = from + delta * 0.5
-    local xAxis = if length > 0.0001 then delta.Unit else Vector3.xAxis
-    local reference = if math.abs(xAxis.Y) > 0.95 then Vector3.zAxis else Vector3.yAxis
-    local zAxis = xAxis:Cross(reference).Unit
-    local yAxis = zAxis:Cross(xAxis).Unit
-    local rotation = CFrame.fromMatrix(Vector3.zero, xAxis, yAxis, zAxis)
-
-    local merged = table.clone(options or {})
-    merged.shape = Enum.PartType.Cylinder
-    return Kit.part(
-        parent,
-        name,
-        Vector3.new(length, diameter, diameter),
-        CFrame.new(center) * rotation,
-        color,
-        material,
-        merged
-    )
-end
-
-function Kit.wedge(
-    parent: Instance,
-    name: string,
-    cframe: CFrame,
-    size: Vector3,
-    color: Color3,
-    material: Enum.Material?,
-    options: Options?
-): WedgePart
-    local part = Instance.new("WedgePart")
-    part.Name = name
-    part.Size = size
-    part.CFrame = cframe
-    part.Color = color
-    part.Material = material or Enum.Material.SmoothPlastic
-    applyOptions(part, options)
-    part.Parent = parent
-    return part
 end
 
 -- CFrame helpers -------------------------------------------------------------
@@ -195,6 +128,254 @@ function Kit.offset(base: CFrame, x: number, y: number, z: number): CFrame
     return base * CFrame.new(x, y, z)
 end
 
+-- Grades e corrimãos ---------------------------------------------------------
+local function baluster(
+    parent: Instance,
+    name: string,
+    cframe: CFrame,
+    height: number,
+    color: Color3,
+    material: Enum.Material?,
+    options: Options?
+)
+    return Kit.block(
+        parent,
+        name,
+        cframe * CFrame.new(0, height * 0.5, 0),
+        Vector3.new(0.09, height, 0.09),
+        color,
+        material,
+        options
+    )
+end
+
+--[[
+    Corrimão reto ao longo de X. Base do corrimão em `y`; altura total em
+    `height`. Usa apenas barras retangulares, como as grades fundidas do
+    presídio.
+]]
+function Kit.railingX(
+    parent: Instance,
+    name: string,
+    x1: number,
+    x2: number,
+    z: number,
+    y: number,
+    height: number,
+    color: Color3,
+    material: Enum.Material?,
+    options: Options?
+)
+    local length = x2 - x1
+    if length <= 0.1 then
+        return
+    end
+    local midX = (x1 + x2) * 0.5
+    local railOptions = table.clone(options or {})
+    railOptions.collide = false
+    railOptions.query = false
+    railOptions.shadow = false
+
+    Kit.block(
+        parent,
+        name .. " corrimão",
+        CFrame.new(midX, y + height, z),
+        Vector3.new(length, 0.16, 0.18),
+        color,
+        material,
+        railOptions
+    )
+    Kit.block(
+        parent,
+        name .. " travessa",
+        CFrame.new(midX, y + height * 0.52, z),
+        Vector3.new(length, 0.09, 0.1),
+        color,
+        material,
+        railOptions
+    )
+    Kit.block(
+        parent,
+        name .. " rodapé",
+        CFrame.new(midX, y + 0.22, z),
+        Vector3.new(length, 0.2, 0.14),
+        color,
+        material,
+        railOptions
+    )
+
+    local posts = math.max(2, math.ceil(length / 6) + 1)
+    for index = 1, posts do
+        local x = x1 + (x2 - x1) * ((index - 1) / (posts - 1))
+        Kit.block(
+            parent,
+            string.format("%s montante %d", name, index),
+            CFrame.new(x, y + height * 0.5, z),
+            Vector3.new(0.18, height, 0.2),
+            color,
+            material,
+            railOptions
+        )
+    end
+
+    local count = math.max(1, math.floor(length / 1.5))
+    for index = 1, count do
+        local x = x1 + (length * (index - 0.5)) / count
+        baluster(
+            parent,
+            string.format("%s balaústre %d", name, index),
+            CFrame.new(x, y + 0.3, z),
+            height - 0.3,
+            color,
+            material,
+            railOptions
+        )
+    end
+end
+
+function Kit.railingZ(
+    parent: Instance,
+    name: string,
+    z1: number,
+    z2: number,
+    x: number,
+    y: number,
+    height: number,
+    color: Color3,
+    material: Enum.Material?,
+    options: Options?
+)
+    local length = z2 - z1
+    if length <= 0.1 then
+        return
+    end
+    local midZ = (z1 + z2) * 0.5
+    local railOptions = table.clone(options or {})
+    railOptions.collide = false
+    railOptions.query = false
+    railOptions.shadow = false
+
+    Kit.block(
+        parent,
+        name .. " corrimão",
+        CFrame.new(x, y + height, midZ),
+        Vector3.new(0.18, 0.16, length),
+        color,
+        material,
+        railOptions
+    )
+    Kit.block(
+        parent,
+        name .. " travessa",
+        CFrame.new(x, y + height * 0.52, midZ),
+        Vector3.new(0.1, 0.09, length),
+        color,
+        material,
+        railOptions
+    )
+    Kit.block(
+        parent,
+        name .. " rodapé",
+        CFrame.new(x, y + 0.22, midZ),
+        Vector3.new(0.14, 0.2, length),
+        color,
+        material,
+        railOptions
+    )
+
+    local posts = math.max(2, math.ceil(length / 6) + 1)
+    for index = 1, posts do
+        local z = z1 + (z2 - z1) * ((index - 1) / (posts - 1))
+        Kit.block(
+            parent,
+            string.format("%s montante %d", name, index),
+            CFrame.new(x, y + height * 0.5, z),
+            Vector3.new(0.2, height, 0.18),
+            color,
+            material,
+            railOptions
+        )
+    end
+
+    local count = math.max(1, math.floor(length / 1.5))
+    for index = 1, count do
+        local z = z1 + (length * (index - 0.5)) / count
+        baluster(
+            parent,
+            string.format("%s balaústre %d", name, index),
+            CFrame.new(x, y + 0.3, z),
+            height - 0.3,
+            color,
+            material,
+            railOptions
+        )
+    end
+end
+
+--[[
+    Série de grades verticais dentro de um vão retangular. É usada nas celas,
+    nas janelas altas e nos portões, sempre com barras de seção quadrada.
+]]
+function Kit.barsX(
+    parent: Instance,
+    name: string,
+    x1: number,
+    x2: number,
+    centerY: number,
+    z: number,
+    height: number,
+    spacing: number,
+    color: Color3,
+    material: Enum.Material?,
+    thickness: number?,
+    options: Options?
+)
+    local t = thickness or 0.12
+    local count = math.max(1, math.floor((x2 - x1) / spacing))
+    for index = 1, count do
+        local x = x1 + ((x2 - x1) * (index - 0.5)) / count
+        Kit.block(
+            parent,
+            string.format("%s barra %d", name, index),
+            CFrame.new(x, centerY, z),
+            Vector3.new(t, height, t),
+            color,
+            material,
+            options
+        )
+    end
+end
+
+function Kit.barsZ(
+    parent: Instance,
+    name: string,
+    z1: number,
+    z2: number,
+    centerY: number,
+    x: number,
+    height: number,
+    spacing: number,
+    color: Color3,
+    material: Enum.Material?,
+    thickness: number?,
+    options: Options?
+)
+    local t = thickness or 0.12
+    local count = math.max(1, math.floor((z2 - z1) / spacing))
+    for index = 1, count do
+        local z = z1 + ((z2 - z1) * (index - 0.5)) / count
+        Kit.block(
+            parent,
+            string.format("%s barra %d", name, index),
+            CFrame.new(x, centerY, z),
+            Vector3.new(t, height, t),
+            color,
+            material,
+            options
+        )
+    end
+end
+
 -- Luzes ----------------------------------------------------------------------
 export type LightOptions = {
     name: string?,
@@ -205,11 +386,7 @@ export type LightOptions = {
     face: Enum.NormalId?,
 }
 
-function Kit.pointLight(
-    parent: BasePart,
-    color: Color3,
-    options: LightOptions?
-): PointLight
+function Kit.pointLight(parent: BasePart, color: Color3, options: LightOptions?): PointLight
     local o = options or {}
     local light = Instance.new("PointLight")
     light.Name = o.name or "Luz"
@@ -221,11 +398,7 @@ function Kit.pointLight(
     return light
 end
 
-function Kit.spotLight(
-    parent: BasePart,
-    color: Color3,
-    options: LightOptions?
-): SpotLight
+function Kit.spotLight(parent: BasePart, color: Color3, options: LightOptions?): SpotLight
     local o = options or {}
     local light = Instance.new("SpotLight")
     light.Name = o.name or "Foco"
@@ -239,11 +412,7 @@ function Kit.spotLight(
     return light
 end
 
-function Kit.surfaceLight(
-    parent: BasePart,
-    color: Color3,
-    options: LightOptions?
-): SurfaceLight
+function Kit.surfaceLight(parent: BasePart, color: Color3, options: LightOptions?): SurfaceLight
     local o = options or {}
     local light = Instance.new("SurfaceLight")
     light.Name = o.name or "Luz de superfície"
@@ -281,7 +450,7 @@ function Kit.stripes(
     local step = totalWidth / count
     for index = 1, count do
         local x = -totalWidth * 0.5 + step * (index - 0.5)
-        Kit.box(
+        Kit.block(
             parent,
             name .. " " .. index,
             cframe * CFrame.new(x, 0, 0),
