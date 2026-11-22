@@ -106,8 +106,8 @@ O workflow **Publicar no Roblox** usa a Open Cloud API e roda de duas formas:
 Credenciais nunca entram no repositório. Antes de usar, configure em
 **Settings → Secrets and variables → Actions**:
 
-| Tipo     | Nome                 | Conteúdo                                              |
-| -------- | -------------------- | ----------------------------------------------------- |
+| Tipo     | Nome                 | Conteúdo                                                  |
+| -------- | -------------------- | --------------------------------------------------------- |
 | Variable | `ROBLOX_UNIVERSE_ID` | opcional; o workflow usa o universo da Casa 27 por padrão |
 | Variable | `ROBLOX_PLACE_ID`    | opcional; o workflow usa o lugar da Casa 27 por padrão    |
 | Secret   | `ROBLOX_API_KEY`     | chave da Open Cloud com permissão de escrita no lugar     |
