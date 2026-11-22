@@ -38,6 +38,28 @@ jobs:
       - name: Prettier (somente CI)
         run: npx prettier --check .
 
+      - name: Preparar patch de formatação
+        if: failure()
+        run: |
+          set -euo pipefail
+          npx prettier --write .
+          rm -rf /tmp/formatted
+          mkdir -p /tmp/formatted
+          while IFS= read -r file; do
+            mkdir -p "/tmp/formatted/$(dirname "$file")"
+            cp "$file" "/tmp/formatted/$file"
+          done <<< "$(git diff --name-only)"
+          tar -czf formatting-patch.tar.gz -C /tmp/formatted .
+
+      - name: Publicar patch de formatação
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: formatting-patch
+          path: formatting-patch.tar.gz
+          if-no-files-found: ignore
+          retention-days: 3
+
       - name: Testes unitários do preview
         run: npm run test:unit
 
