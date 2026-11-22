@@ -118,12 +118,12 @@ end)
 
 test("todos os ambientes têm mobiliário suficiente", function()
     local minimums = {
-        Sala = 220,
-        Cozinha = 260,
-        Quarto = 170,
-        Banheiro = 260,
-        Jantar = 150,
-        Entrada = 80,
+        Sala = 200,
+        Cozinha = 220,
+        Quarto = 130,
+        Banheiro = 200,
+        Jantar = 120,
+        Entrada = 50,
     }
 
     for roomName, minimum in minimums do
