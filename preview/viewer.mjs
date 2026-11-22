@@ -46,7 +46,6 @@ let renderer;
 let scene;
 let camera;
 let controls;
-let activeShot = null;
 let tween = null;
 let sceneData = null;
 let environmentTexture = null;
@@ -363,7 +362,6 @@ function refreshLayerVisibility() {
 function setShot(shot, { immediate = false } = {}) {
   if (!shot) return;
 
-  activeShot = shot;
   state.shotId = shot.id;
   if (shot.mode === "dollhouse") {
     state.ceiling = false;
