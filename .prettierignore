@@ -1,0 +1,11 @@
+node_modules/
+preview/vendor/
+preview/scene.json
+src/world/
+build/
+assets/preview/
+test-results/
+playwright-report/
+.tools/
+*.rbxm
+*.rbxlx

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#171512" />
+    <meta
+      name="description"
+      content="Visualizador 3D de revisão da Casa 27, um interior em escala real feito para Roblox."
+    />
+    <title>Casa 27 · Preview do interior</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.js",
+          "three/addons/": "./vendor/three/addons/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="Visualização 3D da casa"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <header class="masthead ui">
+      <a class="wordmark" href="./" aria-label="Casa 27">
+        <span class="wordmark__index">27</span>
+        <span class="wordmark__name">Casa</span>
+      </a>
+      <p class="masthead__note">Interior em escala real · preview de revisão</p>
+    </header>
+
+    <div class="status ui" aria-live="polite">
+      <span class="status__dot"></span>
+      <span id="status-label">Carregando geometria</span>
+    </div>
+
+    <aside class="spec ui" aria-label="Informações da cena">
+      <p class="eyebrow">Uma casa, um mundo</p>
+      <p class="spec__area">44<span> m²</span></p>
+      <div class="spec__rule"></div>
+      <dl>
+        <div><dt>Pé-direito</dt><dd>2,58 m</dd></div>
+        <div><dt>Geometria</dt><dd id="part-count">—</dd></div>
+        <div><dt>Luzes</dt><dd id="light-count">—</dd></div>
+      </dl>
+    </aside>
+
+    <nav class="shots ui" aria-label="Pontos de vista">
+      <p class="eyebrow shots__label">Pontos de vista</p>
+      <div class="shots__list" id="shot-list"></div>
+    </nav>
+
+    <div class="layers ui" aria-label="Camadas">
+      <button class="toggle" id="toggle-ceiling" type="button" aria-pressed="false">
+        <span class="toggle__mark"></span>Teto
+      </button>
+      <button class="toggle" id="toggle-outer" type="button" aria-pressed="false">
+        <span class="toggle__mark"></span>Casca externa
+      </button>
+    </div>
+
+    <footer class="hint ui">
+      <span class="hint__mouse" aria-hidden="true"></span>
+      Arraste para orbitar · role para aproximar · clique num cômodo
+    </footer>
+
+    <div class="loading" id="loading" role="status">
+      <div class="loading__inner">
+        <span class="eyebrow">Casa 27 · 2026</span>
+        <h1>Montando<br />o interior</h1>
+        <div class="loading__rule"><span id="loading-progress"></span></div>
+        <p id="loading-detail">Abrindo as janelas e acendendo as luzes…</p>
+      </div>
+    </div>
+
+    <div class="error" id="error" hidden>
+      <div>
+        <span class="eyebrow">Não foi possível abrir o preview</span>
+        <h1>Falta de luz.</h1>
+        <p id="error-message">
+          Seu navegador não conseguiu iniciar o WebGL. Abra este preview no Chrome, Edge ou Firefox
+          com aceleração de hardware ativada.
+        </p>
+      </div>
+    </div>
+
+    <noscript>
+      <div class="error">
+        <div>
+          <h1>JavaScript desativado.</h1>
+          <p>Ative o JavaScript para abrir o visualizador 3D da Casa 27.</p>
+        </div>
+      </div>
+    </noscript>
+
+    <script type="module" src="./viewer.mjs"></script>
+  </body>
+</html>

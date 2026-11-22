@@ -1,0 +1,68 @@
+name: Luau & Rojo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: luau-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Validar casa e gerar place
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Rojo e Lune
+        run: |
+          set -euo pipefail
+          tools="$RUNNER_TEMP/casa27-tools"
+          mkdir -p "$tools/rojo" "$tools/lune"
+          curl -fsSL --retry 3 -o "$tools/rojo.zip" \
+            "https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-linux-x86_64.zip"
+          unzip -q "$tools/rojo.zip" -d "$tools/rojo"
+          curl -fsSL --retry 3 -o "$tools/lune.zip" \
+            "https://github.com/lune-org/lune/releases/download/v0.11.1/lune-0.11.1-linux-x86_64.zip"
+          unzip -q "$tools/lune.zip" -d "$tools/lune"
+          chmod +x "$tools/rojo/rojo" "$tools/lune/lune"
+          echo "$tools/rojo" >> "$GITHUB_PATH"
+          echo "$tools/lune" >> "$GITHUB_PATH"
+          "$tools/rojo/rojo" --version
+          "$tools/lune/lune" --version
+
+      - name: Gerar mapa estático e cena do preview
+        run: |
+          set -euo pipefail
+          lune run tools/build_world.luau
+          lune run tools/export_scene.luau
+          test -s src/world/Casa27.rbxm
+          test -s preview/scene.json
+
+      - name: Rodar testes da casa
+        run: lune run tests/house.test.luau
+
+      - name: Compilar o lugar final com Rojo
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          rojo build default.project.json -o build/Casa27.rbxlx
+          test -s build/Casa27.rbxlx
+
+      - name: Validar o lugar final
+        run: lune run tools/validate_place.luau build/Casa27.rbxlx
+
+      - name: Publicar artefato do lugar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Casa27-place
+          path: build/Casa27.rbxlx
+          if-no-files-found: error
+          retention-days: 14

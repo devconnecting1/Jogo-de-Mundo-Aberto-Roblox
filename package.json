@@ -1,0 +1,21 @@
+{
+  "name": "casa27",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Casa 27 — interior 3D em escala real para Roblox, com preview web e validação automatizada.",
+  "scripts": {
+    "preview": "node scripts/serve.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "playwright test",
+    "render:previews": "node scripts/render-previews.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "1.65.1",
+    "eslint": "9.39.5",
+    "globals": "17.14.0",
+    "prettier": "3.10.1",
+    "three": "0.187.0"
+  }
+}

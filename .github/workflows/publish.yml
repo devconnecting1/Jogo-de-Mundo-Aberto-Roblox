@@ -1,0 +1,89 @@
+name: Publicar no Roblox
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Saved apenas salva; Published vai ao ar"
+        required: true
+        type: choice
+        default: Saved
+        options:
+          - Saved
+          - Published
+
+concurrency:
+  group: roblox-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Compilar e enviar pela Open Cloud API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: roblox-production
+    env:
+      ROBLOX_UNIVERSE_ID: ${{ vars.ROBLOX_UNIVERSE_ID }}
+      ROBLOX_PLACE_ID: ${{ vars.ROBLOX_PLACE_ID }}
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Rojo e Lune
+        run: |
+          set -euo pipefail
+          tools="$RUNNER_TEMP/casa27-tools"
+          mkdir -p "$tools/rojo" "$tools/lune"
+          curl -fsSL --retry 3 -o "$tools/rojo.zip" \
+            "https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-linux-x86_64.zip"
+          unzip -q "$tools/rojo.zip" -d "$tools/rojo"
+          curl -fsSL --retry 3 -o "$tools/lune.zip" \
+            "https://github.com/lune-org/lune/releases/download/v0.11.1/lune-0.11.1-linux-x86_64.zip"
+          unzip -q "$tools/lune.zip" -d "$tools/lune"
+          chmod +x "$tools/rojo/rojo" "$tools/lune/lune"
+          echo "$tools/rojo" >> "$GITHUB_PATH"
+          echo "$tools/lune" >> "$GITHUB_PATH"
+
+      - name: Gerar modelo e compilar lugar
+        run: |
+          set -euo pipefail
+          lune run tools/build_world.luau
+          mkdir -p build
+          rojo build default.project.json -o build/Casa27.rbxlx
+          lune run tools/validate_place.luau build/Casa27.rbxlx
+
+      - name: Enviar versão para o Roblox
+        env:
+          ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+          VERSION_TYPE: ${{ inputs.version_type }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ROBLOX_API_KEY:-}" ]; then
+            echo "::error::Configure o secret ROBLOX_API_KEY neste repositório."
+            exit 1
+          fi
+          if [ -z "${ROBLOX_UNIVERSE_ID:-}" ] || [ -z "${ROBLOX_PLACE_ID:-}" ]; then
+            echo "::error::Configure os variables ROBLOX_UNIVERSE_ID e ROBLOX_PLACE_ID."
+            exit 1
+          fi
+
+          endpoint="https://apis.roblox.com/universes/v1/${ROBLOX_UNIVERSE_ID}/places/${ROBLOX_PLACE_ID}/versions?versionType=${VERSION_TYPE}"
+          status=$(curl --silent --show-error --fail-with-body \
+            --retry 2 \
+            --output /tmp/roblox-response.json \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header "x-api-key: ${ROBLOX_API_KEY}" \
+            --header "Content-Type: application/octet-stream" \
+            --data-binary @build/Casa27.rbxlx \
+            "$endpoint")
+
+          cat /tmp/roblox-response.json
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Roblox respondeu HTTP $status."
+            exit 1
+          fi
+          echo "Versão enviada com sucesso (HTTP $status, tipo $VERSION_TYPE)."
