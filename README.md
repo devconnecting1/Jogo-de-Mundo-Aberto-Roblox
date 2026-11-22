@@ -93,10 +93,16 @@ mesmo modelo do Roblox. Ele é uma ferramenta de revisão, não faz parte do jog
 
 ## Publicação segura no Roblox
 
-O workflow **Publicar no Roblox** usa a Open Cloud API e é disparado
-manualmente. Credenciais nunca entram no repositório.
+O workflow **Publicar no Roblox** usa a Open Cloud API e roda de duas formas:
 
-Antes de usar, configure em **Settings → Secrets and variables → Actions**:
+- **Automática:** quando o workflow **Luau & Rojo** passa em um push para
+  `main`, ele baixa o artefato já validado e publica com `versionType=Published`.
+  Na prática, fazer merge na `main` atualiza a experiência sem abrir o Studio.
+- **Manual:** em **Actions → Publicar no Roblox → Run workflow** é possível
+  escolher `Saved` (apenas salva) ou `Published` (vai ao ar).
+
+Credenciais nunca entram no repositório. Antes de usar, configure em
+**Settings → Secrets and variables → Actions**:
 
 | Tipo     | Nome                 | Conteúdo                                              |
 | -------- | -------------------- | ----------------------------------------------------- |
@@ -104,9 +110,9 @@ Antes de usar, configure em **Settings → Secrets and variables → Actions**:
 | Variable | `ROBLOX_PLACE_ID`    | ID do lugar                                           |
 | Secret   | `ROBLOX_API_KEY`     | chave da Open Cloud com permissão de escrita no lugar |
 
-Depois, abra **Actions → Publicar no Roblox → Run workflow**. O padrão é
-`Saved`; escolha `Published` quando quiser levar a versão ao ar. A chave é
-mascarada pelo GitHub durante a execução.
+A chave é mascarada pelo GitHub durante a execução. Se quiser aprovar cada
+deploy, adicione revisores ao environment `roblox-production` em
+**Settings → Environments**.
 
 > **Importante:** qualquer chave que já tenha sido compartilhada em texto deve
 > ser revogada e substituída. Cadastre uma chave nova somente pelo cofre de
@@ -129,7 +135,7 @@ src/builder/Kit.luau   helpers de peças, cilindros, luzes e molduras
 tools/                 geração do modelo, export do preview e validação do place
 tests/                 testes de navegabilidade, geometria e preview
 preview/               visualizador Three.js e cena exportada
-.github/workflows/     CI, preview e publicação manual no Roblox
+.github/workflows/     CI, preview e publicação automática/manual no Roblox
 ```
 
 ### Pipeline
@@ -156,6 +162,10 @@ preview/               visualizador Three.js e cena exportada
   PNG e metadados, mais testes end-to-end com Playwright.
 - **ESLint e Prettier:** executados exclusivamente no GitHub Actions, conforme
   o escopo desta entrega. Não há hooks ou tarefas locais de lint/formatação.
+- **Cache e dependências:** a toolchain Rojo/Lune é cacheada por uma composite
+  action, o npm usa o cache do `setup-node` e o Chromium é cacheado pelo
+  `package-lock.json`. O Dependabot agrupa atualizações semanais de npm e
+  GitHub Actions em PRs revisáveis.
 
 ## Limites de escopo
 

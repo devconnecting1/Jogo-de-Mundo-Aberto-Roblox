@@ -45,10 +45,15 @@ jobs:
           npx prettier --write .
           rm -rf /tmp/formatted
           mkdir -p /tmp/formatted
+          changed_files=$(git diff --name-only)
+          if [ -z "$changed_files" ]; then
+            echo "Nenhuma alteração de formatação produzida."
+            exit 0
+          fi
           while IFS= read -r file; do
             mkdir -p "/tmp/formatted/$(dirname "$file")"
             cp "$file" "/tmp/formatted/$file"
-          done <<< "$(git diff --name-only)"
+          done <<< "$changed_files"
           tar -czf formatting-patch.tar.gz -C /tmp/formatted .
 
       - name: Publicar patch de formatação
