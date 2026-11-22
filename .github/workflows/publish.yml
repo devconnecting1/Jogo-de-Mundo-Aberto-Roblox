@@ -1,6 +1,10 @@
 name: Publicar no Roblox
 
 on:
+  workflow_run:
+    workflows: ["Luau & Rojo"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       version_type:
@@ -18,47 +22,54 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   publish:
-    name: Compilar e enviar pela Open Cloud API
+    name: Publicar a versão validada
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: roblox-production
     env:
       ROBLOX_UNIVERSE_ID: ${{ vars.ROBLOX_UNIVERSE_ID }}
       ROBLOX_PLACE_ID: ${{ vars.ROBLOX_PLACE_ID }}
+      VERSION_TYPE: ${{ github.event_name == 'workflow_dispatch' && inputs.version_type || 'Published' }}
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      - name: Instalar Rojo e Lune
-        run: |
-          set -euo pipefail
-          tools="$RUNNER_TEMP/casa27-tools"
-          mkdir -p "$tools/rojo" "$tools/lune"
-          curl -fsSL --retry 3 -o "$tools/rojo.zip" \
-            "https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-linux-x86_64.zip"
-          unzip -q "$tools/rojo.zip" -d "$tools/rojo"
-          curl -fsSL --retry 3 -o "$tools/lune.zip" \
-            "https://github.com/lune-org/lune/releases/download/v0.11.1/lune-0.11.1-linux-x86_64.zip"
-          unzip -q "$tools/lune.zip" -d "$tools/lune"
-          chmod +x "$tools/rojo/rojo" "$tools/lune/lune"
-          echo "$tools/rojo" >> "$GITHUB_PATH"
-          echo "$tools/lune" >> "$GITHUB_PATH"
+      - name: Instalar Rojo e Lune (com cache)
+        uses: ./.github/actions/setup-tools
 
-      - name: Gerar modelo e compilar lugar
+      - name: Baixar lugar validado pelo CI
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: Casa27-place
+          path: build
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compilar lugar manualmente
+        if: github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
           lune run tools/build_world.luau
           mkdir -p build
           rojo build default.project.json -o build/Casa27.rbxlx
-          lune run tools/validate_place.luau build/Casa27.rbxlx
+
+      - name: Validar lugar antes do envio
+        run: lune run tools/validate_place.luau build/Casa27.rbxlx
 
       - name: Enviar versão para o Roblox
         env:
           ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
-          VERSION_TYPE: ${{ inputs.version_type }}
         run: |
           set -euo pipefail
           if [ -z "${ROBLOX_API_KEY:-}" ]; then

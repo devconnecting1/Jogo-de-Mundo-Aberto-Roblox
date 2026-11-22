@@ -63,6 +63,12 @@ jobs:
       - name: Testes unitários do preview
         run: npm run test:unit
 
+      - name: Restaurar cache do Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Instalar Chromium e dependências do sistema
         run: npx playwright install --with-deps chromium
 
